@@ -258,8 +258,8 @@ mkdir -p $build_dir/.heroku/php/.versions/apache2
 echo $apache_version > $build_dir/.heroku/php/.versions/apache2/apache2
 
 nginx_version="1.8.0"
-nginx_dist_url="$s3_url/nginx-$nginx_version.tar.gz"
-echo "- Nginx ($nginx_version)" | indent
+nginx_dist_url="${S3_CUSTOM_NGINX_URL:-${s3_url}}/nginx-$nginx_version.tar.gz"
+echo "- Nginx ($nginx_version) from ${nginx_dist_url}" | indent
 curl --silent --location "$nginx_dist_url" | tar xz -C $build_dir/.heroku/php
 # nginx; copy in our config
 cp $bp_dir/conf/nginx/nginx.conf.default $build_dir/.heroku/php/etc/nginx/nginx.conf

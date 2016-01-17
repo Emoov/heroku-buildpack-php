@@ -13,13 +13,24 @@ dep_version=${VERSION:-$DEFAULT_VERSION}
 dep_dirname=nginx-${dep_version}
 dep_archive_name=${dep_dirname}.tar.gz
 dep_url=http://nginx.org/download/${dep_archive_name}
-
-echo "-----> Building Nginx ${dep_version}..."
-
+echo ""
+echo "-----> Downloading Nginx ${dep_version}..."
 curl -L ${dep_url} | tar xz
+
+nps_version="1.9.32.10"
+echo ""
+echo "-----> Downloading PageSpeed ${nps_version}..."
+wget -qO- -O release-${nps_version}-beta.zip https://github.com/pagespeed/ngx_pagespeed/archive/release-${nps_version}-beta.zip && unzip release-${nps_version}-beta.zip && rm release-${nps_version}-beta.zip
+curl -L https://dl.google.com/dl/page-speed/psol/${nps_version}.tar.gz | tar xz -C ngx_pagespeed-release-${nps_version}-beta
+mv ngx_pagespeed-release-${nps_version}-beta ${dep_dirname}/
+
+echo ""
+echo "-----> Downloading zlib..."
 curl -L http://zlib.net/zlib-1.2.8.tar.gz | tar xz -C ${dep_dirname}
 curl -L http://sourceforge.net/projects/pcre/files/pcre/8.37/pcre-8.37.tar.gz | tar xz -C ${dep_dirname}
 
+echo ""
+echo "-----> Building Nginx ${dep_version}..."
 pushd ${dep_dirname}
 ETC=${OUT_PREFIX}/etc
 VAR=${OUT_PREFIX}/var
@@ -28,6 +39,7 @@ VAR=${OUT_PREFIX}/var
     --conf-path=${ETC}/nginx/nginx.conf \
     --pid-path=${VAR}/run/nginx.pid \
     --lock-path=${VAR}/run/nginx.lock \
+    --add-module=ngx_pagespeed-release-${nps_version}-beta \
     --http-client-body-temp-path=${VAR}/run/nginx/client_body_temp \
     --http-proxy-temp-path=${VAR}/run/nginx/proxy_temp \
     --http-fastcgi-temp-path=${VAR}/run/nginx/fastcgi_temp \
